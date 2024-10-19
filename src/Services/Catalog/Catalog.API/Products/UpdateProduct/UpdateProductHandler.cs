@@ -1,4 +1,5 @@
 ﻿
+using Catalog.API.Products.CreateProduct;
 using Catalog.API.Products.GetProductByCategory;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -10,7 +11,18 @@ namespace Catalog.API.Products.UpdateProduct
         
     public record UpdateProductResult(bool IsSuccess);
 
+    public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
+    {
+        public UpdateProductCommandValidator()
+        {
+            RuleFor(x => x.Id).NotEmpty().WithMessage("Product Id is required");
 
+            RuleFor(x => x.Name).NotEmpty().WithMessage("Name is required")
+                                .Length(2, 150).WithMessage("Must be between 2 and 150 characters");
+
+            RuleFor(x => x.Price).GreaterThan(0).WithMessage("Price must be greater than 0");
+        }
+    }
 
     internal class UpdateProductCommandHandler(IDocumentSession dbSession,ILogger<UpdateProductCommandHandler> logger) : ICommandHandler<UpdateProductCommand, UpdateProductResult>
     {
@@ -20,7 +32,7 @@ namespace Catalog.API.Products.UpdateProduct
 
             var entity = await dbSession.LoadAsync<Product>(command.Id,cancellationToken);
 
-            if (entity == null) { throw new ProductNotFoundExceptions(); }
+            if (entity == null) { throw new ProductNotFoundException(command.Id); }
 
             //var newEntity = command.Adapt<Product>();
 

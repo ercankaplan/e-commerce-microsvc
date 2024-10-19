@@ -24,7 +24,7 @@ public record GetProductByCategoryResult(IEnumerable<Product> Products);
                 Where(x=> x.Category.Contains(query.Category))
                 .ToListAsync(cancellationToken);
 
-            if(products.Count == 0) { throw new ProductNotFoundExceptions(); }
+            if(products.Count == 0) { throw new ProductNotFoundException(query.Category); }
 
             return new GetProductByCategoryResult(products);
         }
