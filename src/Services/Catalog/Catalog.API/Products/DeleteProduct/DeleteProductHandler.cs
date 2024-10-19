@@ -17,11 +17,11 @@ namespace Catalog.API.Products.DeleteProduct
         }
     }
 
-    internal class DeleteProductCommandHandler(IDocumentSession dbSession,ILogger<DeleteProductCommand> logger) : ICommandHandler<DeleteProductCommand, DeleteProductResult>
+    internal class DeleteProductCommandHandler(IDocumentSession dbSession) : ICommandHandler<DeleteProductCommand, DeleteProductResult>
     {
         public async Task<DeleteProductResult> Handle(DeleteProductCommand command, CancellationToken cancellationToken)
         {
-            logger.LogInformation("DeleteProductCommandHandler called with {@Query}", command);
+            //logger.LogInformation("DeleteProductCommandHandler called with {@Query}", command);
 
             var entity = await dbSession.LoadAsync<Product>(command.Id, cancellationToken);
 

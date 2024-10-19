@@ -21,14 +21,14 @@ namespace Catalog.API.Products.CreateProduct
             RuleFor(x => x.Price).GreaterThan(0).WithMessage("Price must be greater than 0");
         }
     }
-    internal class CreateProductCommandHandler(IDocumentSession docSession,
-        ILogger<CreateProductCommandHandler> logger
+    internal class CreateProductCommandHandler(IDocumentSession docSession
+        //,ILogger<CreateProductCommandHandler> logger
         /*,IValidator<CreateProductCommand> validator*/) : ICommandHandler<CreateProductCommand, CreateProductResult>
     {
         public async Task<CreateProductResult> Handle(CreateProductCommand command, CancellationToken cancellationToken)
         {
 
-            logger.LogInformation("CreateProductCommandHandler called with {@Query}", command);
+            //logger.LogInformation("CreateProductCommandHandler called with {@Query}", command);
 
             /*-----------------------------
              *      this block is takenover by Validation behavior middleware

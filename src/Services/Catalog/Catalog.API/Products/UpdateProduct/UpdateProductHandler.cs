@@ -24,11 +24,11 @@ namespace Catalog.API.Products.UpdateProduct
         }
     }
 
-    internal class UpdateProductCommandHandler(IDocumentSession dbSession,ILogger<UpdateProductCommandHandler> logger) : ICommandHandler<UpdateProductCommand, UpdateProductResult>
+    internal class UpdateProductCommandHandler(IDocumentSession dbSession) : ICommandHandler<UpdateProductCommand, UpdateProductResult>
     {
         public async Task<UpdateProductResult> Handle(UpdateProductCommand command, CancellationToken cancellationToken)
         {
-            logger.LogInformation("UpdateProductHandler called with {@Query}", command);
+            //logger.LogInformation("UpdateProductHandler called with {@Query}", command);
 
             var entity = await dbSession.LoadAsync<Product>(command.Id,cancellationToken);
 

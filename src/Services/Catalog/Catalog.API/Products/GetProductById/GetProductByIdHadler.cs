@@ -14,12 +14,12 @@ namespace Catalog.API.Products.GetProductById
 
 
   
-    internal class GetProductByIdQueryHadler(IDocumentSession dbSession, ILogger<GetProductsQueryHandler> logger)
+    internal class GetProductByIdQueryHadler(IDocumentSession dbSession)
         : IQueryHandler<GetProductByIdQuery, GetProductByIdResult>
     {
         public async Task<GetProductByIdResult> Handle(GetProductByIdQuery query, CancellationToken cancellationToken)
         {
-            logger.LogInformation("GetProductByIdQueryHadler called with {@Query}", query);
+            //logger.LogInformation("GetProductByIdQueryHadler called with {@Query}", query);
 
             var product = await dbSession.LoadAsync<Product>(query.Id, cancellationToken);
 
