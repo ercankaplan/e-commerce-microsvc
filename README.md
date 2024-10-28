@@ -11,3 +11,6 @@ https://hub.docker.com/_/postgres
 A distributed cache can improve the performance and scalability of an ASP.NET Core app, especially when the app is hosted by a cloud service
 https://learn.microsoft.com/en-us/aspnet/core/performance/caching/distributed?view=aspnetcore-8.0
 
+Redis Image
+https://hub.docker.com/_/redis
+
