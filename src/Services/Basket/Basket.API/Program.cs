@@ -1,6 +1,7 @@
 using Basket.API.Data;
 using BuildingBlocks.Behaviors;
 using BuildingBlocks.Handlers;
+using HealthChecks.UI.Client;
 using Marten;
 using Microsoft.Extensions.Caching.Distributed;
 
@@ -10,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var assembly = typeof(Program).Assembly;
 var connStrBasketDB = builder.Configuration.GetConnectionString("BasketDB");
-var redisConStr = builder.Configuration.GetConnectionString("Redis");
+var connStrRedis = builder.Configuration.GetConnectionString("Redis");
 
 
 builder.Services.AddMediatR(config=> {
@@ -47,11 +48,16 @@ builder.Services.Decorate<IBasketRepository,CachedBasketRepository>();
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    options.Configuration = connStrRedis;
     //options.InstanceName = "BasketAPICache";
 });
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+
+builder.Services.AddHealthChecks() //healtcheck api
+      .AddNpgSql(connStrBasketDB!)//healtcheck postgre
+      .AddRedis(connStrRedis!); //healtcheck redis
+
 
 var app = builder.Build();
 
@@ -60,5 +66,10 @@ var app = builder.Build();
 app.UseExceptionHandler(opt => { });
 
 app.MapCarter();
+
+app.UseHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions()
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 
 app.Run();
