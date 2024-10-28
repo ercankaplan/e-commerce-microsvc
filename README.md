@@ -14,3 +14,29 @@ https://learn.microsoft.com/en-us/aspnet/core/performance/caching/distributed?vi
 Redis Image
 https://hub.docker.com/_/redis
 
+Health Check
+https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks
+https://www.nuget.org/packages/AspNetCore.HealthChecks.NpgSql
+https://www.nuget.org/packages/AspNetCore.HealthChecks.Redis
+
+``` HealtCheck Response
+{
+    "status": "Healthy",
+    "totalDuration": "00:00:00.3067133",
+    "entries": {
+        "npgsql": {
+            "data": {},
+            "duration": "00:00:00.3047232",
+            "status": "Healthy",
+            "tags": []
+        },
+        "redis": {
+            "data": {},
+            "duration": "00:00:00.2136677",
+            "status": "Healthy",
+            "tags": []
+        }
+    }
+}
+
+'''
