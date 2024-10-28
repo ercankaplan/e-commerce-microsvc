@@ -2,6 +2,7 @@ using Basket.API.Data;
 using BuildingBlocks.Behaviors;
 using BuildingBlocks.Handlers;
 using Marten;
+using Microsoft.Extensions.Caching.Distributed;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var assembly = typeof(Program).Assembly;
 var connStrBasketDB = builder.Configuration.GetConnectionString("BasketDB");
+var redisConStr = builder.Configuration.GetConnectionString("Redis");
 
 
 builder.Services.AddMediatR(config=> {
@@ -30,6 +32,24 @@ builder.Services.AddMarten(options =>
 }).UseLightweightSessions();
 
 builder.Services.AddScoped<IBasketRepository, BasketRepository>();
+
+/* manually DI CachedBasketRepository
+builder.Services.AddScoped(provider=> {
+
+    var basketRepository = provider.GetRequiredService<BasketRepository>();
+    var distributedCache = provider.GetRequiredService<IDistributedCache>();
+
+    return new CachedBasketRepository(basketRepository, distributedCache);
+
+});
+*/
+builder.Services.Decorate<IBasketRepository,CachedBasketRepository>();
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    //options.InstanceName = "BasketAPICache";
+});
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
