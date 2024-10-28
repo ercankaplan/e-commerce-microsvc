@@ -38,5 +38,4 @@ https://www.nuget.org/packages/AspNetCore.HealthChecks.Redis
         }
     }
 }
-
-'''
+```
