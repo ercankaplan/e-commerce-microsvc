@@ -75,7 +75,7 @@ Adding SQLite DiscountDb manually:
       public DbSet<Coupon> Coupons { get; set; } = default!;
   }
 
-In PRobram.cs configure the DI :
+In Program.cs configure the DI :
 
 builder.Services.AddDbContext<DiscountContext>(options =>
 {
