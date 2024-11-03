@@ -62,3 +62,28 @@ Unhealthy Response
     }
 }
 ```
+
+Adding SQLite DiscountDb manually:
+```
+  public class DiscountContext: DbContext
+  {
+      public DiscountContext(DbContextOptions<DiscountContext> options):base(options) 
+      {
+          
+      }
+
+      public DbSet<Coupon> Coupons { get; set; } = default!;
+  }
+
+In PRobram.cs configure the DI :
+
+builder.Services.AddDbContext<DiscountContext>(options =>
+{
+    options.UseSqlite(builder.Configuration.GetConnectionString("Database"));
+});
+
+Then run the "Add-Migration InitialCreate" command in the Package Manager Console
+next "PM> Update-Database"
+
+```
+
