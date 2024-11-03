@@ -87,3 +87,5 @@ next "PM> Update-Database"
 
 ```
 
+## sqlitebrowser
+https://sqlitebrowser.org/blog/version-3-13-1-released/
