@@ -12,4 +12,12 @@
 
         public string ProductName { get; set; } = default!;
     }
+
+    //public class Price
+    //{
+    //    public decimal OrginalPrice { get; set; } = default!;
+    //    public decimal DiscountAmount { get; set; }
+    //    public decimal Price { get; set; }
+    //}
+
 }
