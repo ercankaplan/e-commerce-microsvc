@@ -1,4 +1,5 @@
-using Ordering.API.Extentions;
+using Ordering.API.Extensions;
+using Ordering.Infrastructure.Data.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,12 @@ var app = builder.Build();
 //Configure the Http Request pipeline.
 
 app.UseApiServices();
+
+if (app.Environment.IsDevelopment())
+{
+    await app.InitializeDatabaseAsync();
+    await app.SeedDataAsync();
+}
 
 app.MapGet("/", () => "Hello World!");
 

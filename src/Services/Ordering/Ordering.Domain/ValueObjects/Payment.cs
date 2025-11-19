@@ -46,7 +46,7 @@ namespace Ordering.Domain.ValueObjects
                 throw new ArgumentException("Expiration date is not in the correct format MM/YY", nameof(expiration));
             }
             //Compare today's date, convert MM/YY to DateTime
-            DateTime lastDateofExpiration = new DateTime(int.Parse(expiration.Split("/").Last()),int.Parse(expiration.Split("/").First()),1).AddMonths(1).AddDays(-1);
+            DateTime lastDateofExpiration = new DateTime(2000 + int.Parse(expiration.Split("/").Last()),int.Parse(expiration.Split("/").First()),1).AddMonths(1).AddDays(-1);
 
             if (DateTime.Today > lastDateofExpiration)
             {

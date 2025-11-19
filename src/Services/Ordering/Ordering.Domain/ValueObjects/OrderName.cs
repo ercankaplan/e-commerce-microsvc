@@ -8,7 +8,7 @@ namespace Ordering.Domain.ValueObjects
 {
     public record OrderName
     {
-        public const int DefaultLength = 5;
+        public const int DefaultLength = 50;
         public string Value { get; }
 
         private OrderName(string value) => Value = value;
@@ -16,7 +16,7 @@ namespace Ordering.Domain.ValueObjects
         public static OrderName Of(string value)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(value, "value");
-            ArgumentOutOfRangeException.ThrowIfNotEqual(value.Length,DefaultLength);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(value.Length,DefaultLength);
 
             return new OrderName(value);
         }
