@@ -32,12 +32,21 @@ services:
    ports:
     - "6379:6379"
   
+  orderdb:
+   container_name : orderdb
+   environment:
+    - SA_PASSWORD=1234qqqQ
+    - ACCEPT_EULA=Y
+   restart : always
+   ports:
+    - "1433:1433"
+
   catalog.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__CatalogDB=Server=catalogdb;Port=5432;Database=CatalogDB;User Id=postgres;Password=postgres;Include Error Detail=true
+      - ConnectionStrings__CatalogDB=Server=catalogdb;Port=5432;Database=CatalogDB;User Id=postgres;Password=postgres
     depends_on :
      - catalogdb
     ports:
@@ -53,7 +62,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__BasketDB=Server=basketdb;Port=5432;Database=BasketDB;User Id=postgres;Password=postgres;Include Error Detail=true
+      - ConnectionStrings__BasketDB=Server=basketdb;Port=5432;Database=BasketDB;User Id=postgres;Password=postgres
       - ConnectionStrings__Redis=distributedcache:6379
       - GrpcSettings__DiscountUrl=https://discount.grpc:8081
     depends_on :

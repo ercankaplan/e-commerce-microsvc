@@ -1,4 +1,4 @@
-﻿namespace Ordering.API.Extentions
+﻿namespace Ordering.API.Extensions
 {
     public static class ApplicationBuilderExtensions
     {

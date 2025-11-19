@@ -18,7 +18,7 @@ public class Order : Aggregate<OrderId>
 
     public Payment Payment { get; private set; } = default!;
 
-    public OrderStatus OrderStats { get; private set; } = OrderStatus.Pending;
+    public OrderStatus Status { get; private set; } = OrderStatus.Pending;
 
     public decimal TotalPrice
     {
@@ -42,7 +42,7 @@ public class Order : Aggregate<OrderId>
             Payment = payment
         };
 
-        order.AddDomainEvent(new OrderCreatedEvent(order);
+        order.AddDomainEvent(new OrderCreatedEvent(order));
 
         return order;
     }

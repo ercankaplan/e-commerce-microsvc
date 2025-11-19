@@ -16,6 +16,8 @@ namespace Ordering.Domain.Models
         public ProductId ProductId { get; private set; } = default!;
         public int Quantity { get; private set; } = default!;
         public decimal Price { get; private set; } = default!;
+        //public Payment Payment { get; set; }
+        //public CustomerId CustomerId { get; set; }
 
         public static OrderItem Create(OrderId orderId, ProductId productId, int quantity, decimal price)
         {
