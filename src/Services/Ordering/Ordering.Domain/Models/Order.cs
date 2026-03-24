@@ -48,13 +48,14 @@ public class Order : Aggregate<OrderId>
     }
 
     public void Update(OrderName orderName, Address shippingAddress,
-        Address billingAddress, Payment payment)
+        Address billingAddress, Payment payment, OrderStatus status)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(orderName.Value);
         OrderName = orderName;
         ShippingAddress = shippingAddress;
         BillingAddress = billingAddress;
         Payment = payment;
+        Status = status;
         AddDomainEvent(new OrderUpdatedEvent(this));
     }
 
