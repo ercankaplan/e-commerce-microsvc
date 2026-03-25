@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
 namespace Ordering.API.Extensions
@@ -7,9 +8,11 @@ namespace Ordering.API.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            services.AddMediatR(cfg =>
+            services.AddMediatR(configuration =>
             {
-                cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+                configuration.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+                configuration.AddOpenBehavior(typeof(BuildingBlocks.Behaviors.ValidationBehavior<,>));
+                configuration.AddOpenBehavior(typeof(BuildingBlocks.Behaviors.LoggingBehavior<,>));
             });
 
             return services;

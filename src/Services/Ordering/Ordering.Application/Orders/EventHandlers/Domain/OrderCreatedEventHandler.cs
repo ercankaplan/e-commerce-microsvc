@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace Ordering.Application.Orders.EventHandlers.Domain
 {
-    internal class OrderCreatedEventHandler
+    public class OrderCreatedEventHandler(ILogger<OrderCreatedEventHandler> logger) : INotificationHandler<OrderCreatedEvent>
     {
+        public Task Handle(OrderCreatedEvent notification, CancellationToken cancellationToken)
+        {
+            logger.LogInformation("Domain event handled:{DomainEvent}.", notification.GetType().Name);
+            return Task.CompletedTask;
+        }
     }
 }
