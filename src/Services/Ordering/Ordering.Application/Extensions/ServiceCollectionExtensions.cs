@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
-namespace Ordering.API.Extensions
+namespace Ordering.Application
 {
     public static class ServiceCollectionExtensions
     {

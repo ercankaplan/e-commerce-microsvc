@@ -6,7 +6,7 @@ using Ordering.Application.Data;
 using Ordering.Infrastructure.Data.Interceptors;
 
 
-namespace Ordering.API.Extensions
+namespace Ordering.Infrastructure
 {
     public static class ServiceCollectionExtensions
     {

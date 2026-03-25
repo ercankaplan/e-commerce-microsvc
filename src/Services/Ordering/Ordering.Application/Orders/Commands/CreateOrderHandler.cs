@@ -16,6 +16,8 @@ public class CreateOrderHandler(IApplicationDbContext dbContext) : ICommandHandl
 
         await dbContext.Orders.AddAsync(newOrder, cancellationToken);
 
+        await dbContext.SaveChangesAsync(cancellationToken);
+
         return new CreateOrderResult(newOrder.Id.Value);
     }
 
