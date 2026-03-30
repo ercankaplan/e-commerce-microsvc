@@ -9,9 +9,6 @@ namespace Ordering.Application.Orders.Queries
             var totalCount = await dbContext.Orders.LongCountAsync(cancellationToken);
 
             var orders = await dbContext.Orders
-                .Include(o => o.ShippingAddress)
-                .Include(o => o.BillingAddress)
-                .Include(o => o.Payment)
                 .Include(o => o.OrderItems)
                 .AsNoTracking()
                 .Skip((query.PaginationRequest.PageIndex - 1) * query.PaginationRequest.PageSize)

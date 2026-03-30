@@ -9,13 +9,10 @@ namespace Ordering.Application.Orders.Queries
         public async Task<GetOrdersByNameResult> Handle(GetOrdersByNameQuery query, CancellationToken cancellationToken)
         {
             var orderList = await dbContext.Orders
-                  .Include(o => o.ShippingAddress)
-                  .Include(o => o.BillingAddress)
-                  .Include(o => o.Payment)
                   .Include(o => o.OrderItems)
                   .AsNoTracking()
                   .Where(o => o.OrderName.Value.Contains(query.Name))
-                  .OrderBy(o => o.OrderName)
+                  .OrderBy(o => o.OrderName.Value)
                   .ToListAsync(cancellationToken);
 
             var orderDtos = orderList.ToOrderDtos();

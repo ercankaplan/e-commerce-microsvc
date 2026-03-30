@@ -4,7 +4,7 @@ using BuildingBlocks.Handlers;
 using Discount.Grpc;
 using HealthChecks.UI.Client;
 using Marten;
-using Microsoft.Extensions.Caching.Distributed;
+using BuildingBlocks.Messaging.MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +67,12 @@ builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(
 
     return handler;
 });
+
+//Asynchronous Communication Service - Publisher  - MassTransit
+
+builder.Services.AddMessageBroker(builder.Configuration);
+
+//Cross cutting concerns
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
