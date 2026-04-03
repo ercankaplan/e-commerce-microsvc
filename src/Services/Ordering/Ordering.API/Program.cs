@@ -1,15 +1,18 @@
-using Ordering.API.Extensions;
+using Ordering.API;
+using Ordering.Application;
+using Ordering.Infrastructure;
 using Ordering.Infrastructure.Data.Extensions;
+
+;
 
 var builder = WebApplication.CreateBuilder(args);
 
 //Add servicess to the container
 
 builder.Services
-    .AddApplicationServices()
-    .AddInfrastuctureServices(builder.Configuration)
-    .AddApiServices(builder.Configuration);
-
+    .AddApplicationServices(builder.Configuration) // Application Layer services (MediatR, MassTransit)
+    .AddInfrastuctureServices(builder.Configuration) // Infrastucture Layer services (DbContext, Repositories)
+    .AddApiServices(builder.Configuration); // Presentation Layer services (Carter, Health Checks, Exception Handling)
 
 var app = builder.Build();
 

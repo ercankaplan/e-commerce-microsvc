@@ -1,10 +1,11 @@
 using Basket.API.Data;
 using BuildingBlocks.Behaviors;
 using BuildingBlocks.Handlers;
+using BuildingBlocks.Messaging.MassTransit;
 using Discount.Grpc;
 using HealthChecks.UI.Client;
 using Marten;
-using Microsoft.Extensions.Caching.Distributed;
+using Weasel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,9 +32,12 @@ builder.Services.AddCarter();
 builder.Services.AddMarten(options =>
 {
     options.Connection(connStrBasketDB!);
+    options.AutoCreateSchemaObjects = AutoCreate.CreateOrUpdate;
 }).UseLightweightSessions();
 
 builder.Services.AddScoped<IBasketRepository, BasketRepository>();
+builder.Services.AddScoped<IBasketOutboxMessageRepository, BasketOutboxMessageRepository>();
+builder.Services.AddScoped<IBasketUnitOfWork, BasketUnitOfWork>();
 
 /* manually DI CachedBasketRepository
 builder.Services.AddScoped(provider=> {
@@ -67,6 +71,12 @@ builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(
 
     return handler;
 });
+
+//Asynchronous Communication Service - Publisher  - MassTransit
+
+//builder.Services.AddMessageBroker(builder.Configuration);
+
+//Cross cutting concerns
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 

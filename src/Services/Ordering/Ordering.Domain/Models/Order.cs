@@ -26,6 +26,7 @@ public class Order : Aggregate<OrderId>
         private set { }
     }
 
+    private Order() { }
 
     public static Order Create(OrderId orderId, CustomerId customerId, OrderName orderName,
         Address shippingAddress, Address billingAddress, Payment payment)
@@ -48,13 +49,14 @@ public class Order : Aggregate<OrderId>
     }
 
     public void Update(OrderName orderName, Address shippingAddress,
-        Address billingAddress, Payment payment)
+        Address billingAddress, Payment payment, OrderStatus status)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(orderName.Value);
         OrderName = orderName;
         ShippingAddress = shippingAddress;
         BillingAddress = billingAddress;
         Payment = payment;
+        Status = status;
         AddDomainEvent(new OrderUpdatedEvent(this));
     }
 

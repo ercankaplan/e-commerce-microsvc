@@ -11,8 +11,8 @@ using Ordering.Infrastructure.Data;
 #nullable disable
 
 namespace Ordering.Infrastructure.Data.Migrations
-{
-    [DbContext(typeof(ApplicationDBContext))]
+{   
+    [DbContext(typeof(ApplicationDbContext))]
     [Migration("20251112214757_OrderNameFix")]
     partial class OrderNameFix
     {

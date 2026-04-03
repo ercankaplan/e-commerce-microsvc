@@ -9,14 +9,14 @@ namespace Ordering.Infrastructure.Data.Extensions
         public static async Task InitializeDatabaseAsync(this IApplicationBuilder app)
         {
             using var scope = app.ApplicationServices.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             await dbContext.Database.MigrateAsync();
         }
 
         public static async Task SeedDataAsync(this IApplicationBuilder app)
         {
             using var scope = app.ApplicationServices.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             await SeedCustomersAsync(dbContext);
             await SeedProductsAsync(dbContext);
             await SeedOrdersAsync(dbContext);
@@ -24,7 +24,7 @@ namespace Ordering.Infrastructure.Data.Extensions
 
         }
 
-        private static async Task SeedCustomersAsync(ApplicationDBContext dbContext)
+        private static async Task SeedCustomersAsync(ApplicationDbContext dbContext)
         {
             if(await dbContext.Customers.AnyAsync()) return;
 
@@ -37,7 +37,7 @@ namespace Ordering.Infrastructure.Data.Extensions
         }
 
 
-        private static async Task SeedProductsAsync(ApplicationDBContext dbContext)
+        private static async Task SeedProductsAsync(ApplicationDbContext dbContext)
         {
             if(await dbContext.Products.AnyAsync()) return;
 
@@ -46,7 +46,7 @@ namespace Ordering.Infrastructure.Data.Extensions
             await dbContext.SaveChangesAsync();
             await Task.CompletedTask;
         }
-        private static async Task SeedOrdersAsync(ApplicationDBContext dbContext)
+        private static async Task SeedOrdersAsync(ApplicationDbContext dbContext)
         {
             if (await dbContext.Orders.AnyAsync()) return;
             // Implement your data seeding logic here
