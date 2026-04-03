@@ -2,6 +2,7 @@
 using Basket.API.Data;
 using BuildingBlocks.Messaging.Events;
 using MassTransit;
+using MassTransit.Middleware;
 
 namespace Basket.API.Basket.CheckoutBasket
 {
@@ -17,11 +18,13 @@ namespace Basket.API.Basket.CheckoutBasket
         {
             RuleFor(x => x.BasketCheckoutDto).NotNull().WithMessage("BasketCheckoutDto cannot be null.");
             RuleFor(x => x.BasketCheckoutDto.UserName).NotEmpty().WithMessage("UserName cannot be empty.");
-           
+
         }
     }
 
-    public class CheckoutBasketHandler(IBasketRepository basketRepository,IPublishEndpoint  publishEndpoint) 
+    public class CheckoutBasketHandler(IBasketRepository basketRepository, 
+        IBasketOutboxMessageRepository basketOutboxMessageRepository,
+        IBasketUnitOfWork basketUnitOfWork)//,IPublishEndpoint  publishEndpoint) 
         : ICommandHandler<CheckoutBasketCommand, CheckoutBasketResult>
     {
         public async Task<CheckoutBasketResult> Handle(CheckoutBasketCommand command, CancellationToken cancellationToken)
@@ -40,13 +43,30 @@ namespace Basket.API.Basket.CheckoutBasket
                 Items = basket.Items.Select(i => new BasketCheckoutOrderItem(i.Quantity, i.Price)).ToList()
             };
 
-            await publishEndpoint.Publish(eventMessage, cancellationToken);
+            //TODO : write event to outboxmessage table
+
+           await basketOutboxMessageRepository.AddMessage(new BasketOutboxMessage
+            {
+                ContentType = "application/json",
+                EventName = nameof(BasketCheckoutEvent),
+                EventType = typeof(BasketCheckoutEvent).AssemblyQualifiedName,
+                EventVersion = 1,
+                EnvelopeVersion = 1,
+                Payload = System.Text.Json.JsonSerializer.Serialize(eventMessage),
+                Id = Guid.NewGuid(),
+                OccurredOnUtc = DateTime.UtcNow,
+                Metadata = null
+            }, cancellationToken);
+
+            //await publishEndpoint.Publish(eventMessage, cancellationToken);
 
             await basketRepository.DeleteBasket(command.BasketCheckoutDto.UserName, cancellationToken);
+
+            await basketUnitOfWork.SaveChangesAsync(cancellationToken);
 
             return new CheckoutBasketResult(true);
         }
 
-        
+
     }
 }

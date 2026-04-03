@@ -18,7 +18,7 @@ namespace Basket.API.Data
         {
             dbSession.Store<ShoppingCart>(basket);
 
-            await dbSession.SaveChangesAsync(cancellationToken);
+            //await dbSession.SaveChangesAsync(cancellationToken);
 
             return basket;
         }
@@ -27,7 +27,7 @@ namespace Basket.API.Data
         {
             dbSession.Delete<ShoppingCart>(userName);
 
-            await dbSession.SaveChangesAsync(cancellationToken);
+            //await dbSession.SaveChangesAsync(cancellationToken);
 
             return true;
         }

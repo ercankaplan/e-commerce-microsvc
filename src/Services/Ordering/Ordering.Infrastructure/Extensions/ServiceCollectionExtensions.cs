@@ -16,7 +16,8 @@ namespace Ordering.Infrastructure
             var connectionString = configuration.GetConnectionString("OrderingDB");
 
             services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
-            services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
+            services.AddScoped<ISaveChangesInterceptor, DomainEventsToOutboxMessagesInterceptor>();
+            //services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
 
             services.AddDbContext<ApplicationDbContext>((serviceProvider,options) =>
             {

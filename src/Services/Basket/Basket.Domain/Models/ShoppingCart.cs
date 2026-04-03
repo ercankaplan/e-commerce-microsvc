@@ -1,7 +1,7 @@
 ﻿using Marten.Schema;
 
-namespace Basket.API.Models
-{
+namespace Basket.Domain.Models
+{ 
     public class ShoppingCart
     {
         [Identity]

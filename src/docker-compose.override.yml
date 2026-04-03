@@ -110,7 +110,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__OrderingDB=Server=orderdb;Port=1433;Database=OrderingDB;User Id=sa;Password=1234qqqQ;Encrypt=false;TrustServerCertificate=true
+      - ConnectionStrings__OrderingDB=Server=orderdb;Database=OrderingDB;User Id=sa;Password=1234qqqQ;Encrypt=false;TrustServerCertificate=true
       - MessageBroker__Host=amqp://ecommerce-mq:5672
       - MessageBroker__UserName=guest
       - MessageBroker__Password=guest
