@@ -1,7 +1,5 @@
 using BuildingBlocks.Messaging.MassTransit;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Ordering.Infrastructure;
-using Ordering.Infrastructure.Data;
 using Ordering.OutboxProcessor;
 
 var builder = Host.CreateApplicationBuilder(args);

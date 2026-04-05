@@ -48,9 +48,9 @@ namespace Basket.API.Basket.CheckoutBasket
            await basketOutboxMessageRepository.AddMessage(new BasketOutboxMessage
             {
                 ContentType = "application/json",
-                EventName = nameof(BasketCheckoutEvent),
+                EventName = EventContracts.BasketCheckout.Name,
                 EventType = typeof(BasketCheckoutEvent).AssemblyQualifiedName,
-                EventVersion = 1,
+                EventVersion = EventContracts.BasketCheckout.Version,
                 EnvelopeVersion = 1,
                 Payload = System.Text.Json.JsonSerializer.Serialize(eventMessage),
                 Id = Guid.NewGuid(),

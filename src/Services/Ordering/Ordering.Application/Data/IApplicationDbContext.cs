@@ -9,6 +9,8 @@ namespace Ordering.Application.Data
         DbSet<Order> Orders { get; }
         DbSet<OrderItem> OrderItems { get; }
         DbSet<Product> Products { get; }
+        DbSet<InboxMessage> InboxMessages { get; }
+        DbSet<InboxDeadLetterQueue> InboxDeadLetterQueues { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
