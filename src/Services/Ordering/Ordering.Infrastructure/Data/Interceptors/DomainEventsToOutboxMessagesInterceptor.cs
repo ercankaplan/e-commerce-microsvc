@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using BuildingBlocks.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Ordering.Domain.Abstractions;
+using Ordering.Domain.Models;
 
 namespace Ordering.Infrastructure.Data.Interceptors
 {

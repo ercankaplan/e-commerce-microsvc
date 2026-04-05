@@ -99,6 +99,7 @@ namespace Basket.OutboxProcessor
                 catch (Exception ex)
                 {
                     message.RetryCount++;
+                    message.NextRetryAfter = DateTime.UtcNow.AddSeconds(Math.Pow(2, message.RetryCount));
                     message.LastError = ex.ToString();
 
                     _logger.LogError(

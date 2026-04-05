@@ -2,7 +2,6 @@
 using Ordering.Domain.Models;
 using System.Reflection;
 using Ordering.Application.Data;
-using BuildingBlocks.Outbox;
 
 namespace Ordering.Infrastructure.Data
 {
@@ -18,6 +17,7 @@ namespace Ordering.Infrastructure.Data
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
         public DbSet<Product> Products => Set<Product>();
         public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+        public DbSet<OutboxDeadLetterQueue> OutboxDeadLetterQueues => Set<OutboxDeadLetterQueue>();
 
 
         override protected void OnModelCreating(ModelBuilder modelBuilder)

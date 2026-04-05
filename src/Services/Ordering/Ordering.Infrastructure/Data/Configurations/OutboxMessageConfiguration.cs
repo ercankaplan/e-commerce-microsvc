@@ -1,7 +1,6 @@
-﻿using BuildingBlocks.Outbox;
-using MassTransit;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Ordering.Domain.Models;
 
 namespace Ordering.Infrastructure.Data.Configurations
 {
