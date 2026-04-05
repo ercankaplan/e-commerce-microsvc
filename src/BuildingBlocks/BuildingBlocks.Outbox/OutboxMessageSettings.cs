@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace BuildingBlocks.Outbox
 {
-    public class OutboxMessageSettings
-    {
+    //public class OutboxMessageSettings
+    //{
 
-        public static int EventVersion = 1;
-        public static int EnvelopeVersion = 1;
-    }
+    //    public static int EventVersion = 1;
+    //    public static int EnvelopeVersion = 1;
+    //}
 }

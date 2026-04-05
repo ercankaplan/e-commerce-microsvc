@@ -1,6 +1,7 @@
 using System.Text.Json;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Ordering.Domain.Models;
 using Ordering.Infrastructure.Data;
 
 namespace Ordering.OutboxProcessor
@@ -84,6 +85,23 @@ namespace Ordering.OutboxProcessor
                         continue;
                     }
 
+                    if (message.RetryCount > 5)
+                    { 
+                        dbContext.OutboxDeadLetterQueues.Add(new OutboxDeadLetterQueue
+                        {
+                            Id = Guid.NewGuid(),
+                            OriginalMessageId = message.Id,
+                            Type = message.EventType,
+                            Content = message.Payload,
+                            Error = message.LastError,
+                            MovedToDlqOnUtc = DateTime.UtcNow
+                        });
+                        dbContext.OutboxMessages.Remove(message);
+
+                        continue;
+                    }
+
+
                     await mediator.Publish(domainEvent, cancellationToken);
 
                     message.ProcessedOnUtc = DateTime.UtcNow;
@@ -97,6 +115,8 @@ namespace Ordering.OutboxProcessor
                 catch (Exception ex)
                 {
                     message.RetryCount++;
+                    // Exponential backoff: don't retry immediately
+                    message.NextRetryAfter = DateTime.UtcNow.AddSeconds(Math.Pow(2, message.RetryCount));
                     message.LastError = ex.ToString();
 
                     _logger.LogError(

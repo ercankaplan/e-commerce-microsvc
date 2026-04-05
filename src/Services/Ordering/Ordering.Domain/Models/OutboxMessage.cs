@@ -1,10 +1,13 @@
-﻿using Marten.Schema;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Basket.Domain.Models
+namespace Ordering.Domain.Models
 {
-    public class BasketOutboxMessage
+    public class OutboxMessage
     {
-        [Identity]
         public Guid Id { get; init; }
         public DateTime OccurredOnUtc { get; init; }
 
@@ -23,5 +26,14 @@ namespace Basket.Domain.Models
         public int RetryCount { get; set; }
         public DateTime? NextRetryAfter { get; set; } //  // Exponential backoff: don't retry immediately
         public string? LastError { get; set; }
+
+        
+    }
+
+    public class OutboxMessageSettings
+    {
+
+        public static int EventVersion = 1;
+        public static int EnvelopeVersion = 1;
     }
 }
