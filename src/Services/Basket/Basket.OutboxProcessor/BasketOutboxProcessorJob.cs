@@ -1,5 +1,7 @@
 using Basket.Domain.Models;
+using BuildingBlocks.Messaging.Events;
 using Marten;
+using MassTransit;
 using MassTransit.Mediator;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
@@ -10,7 +12,7 @@ namespace Basket.OutboxProcessor
     {
  
         private const int BatchSize = 20;
-        private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(60);
+        private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(20);
 
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ILogger<BasketOutboxProcessorJob> _logger;
@@ -51,8 +53,9 @@ namespace Basket.OutboxProcessor
         {
             using var scope = _serviceScopeFactory.CreateScope();
 
-        
-            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+            var publishEndpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
+
             var _dbSession = scope.ServiceProvider.GetRequiredService<IDocumentSession>();
 
             var messages = await _dbSession.Query<BasketOutboxMessage>()
@@ -85,11 +88,29 @@ namespace Basket.OutboxProcessor
                         message.LastError = "Deserialization returned null.";
                         continue;
                     }
+                    var envelope = new IntegrationEventMessage
+                    {
+                        Id = message.Id,
+                        OccurredOnUtc = message.OccurredOnUtc,
+                        EnvelopeVersion = message.EnvelopeVersion,
+                        ContentType = message.ContentType,
+                        Payload = message.Payload,
+                        Metadata = message.Metadata,
+                        EventType = message.EventType,
+                        EventName = message.EventName,
+                        EventVersion = message.EventVersion
 
-                    await mediator.Publish(domainEvent, cancellationToken);
+                    };
+
+                    await publishEndpoint.Publish(envelope, cancellationToken);
+                    //await publishEndpoint.Publish(domainEvent, cancellationToken);
 
                     message.ProcessedOnUtc = DateTime.UtcNow;
                     message.LastError = null;
+
+                    _dbSession.Store(message);
+
+                    await _dbSession.SaveChangesAsync(cancellationToken);
 
                     _logger.LogInformation(
                         "Processed outbox message {MessageId} ({EventType})",
@@ -101,6 +122,9 @@ namespace Basket.OutboxProcessor
                     message.RetryCount++;
                     message.NextRetryAfter = DateTime.UtcNow.AddSeconds(Math.Pow(2, message.RetryCount));
                     message.LastError = ex.ToString();
+                    
+                    _dbSession.Store(message);
+                    await _dbSession.SaveChangesAsync(cancellationToken);
 
                     _logger.LogError(
                         ex,
@@ -109,7 +133,7 @@ namespace Basket.OutboxProcessor
                 }
             }
 
-            await _dbSession.SaveChangesAsync(cancellationToken);
+           
         }
     }
 }

@@ -18,7 +18,8 @@ namespace Ordering.Infrastructure.Data
         public DbSet<Product> Products => Set<Product>();
         public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
         public DbSet<OutboxDeadLetterQueue> OutboxDeadLetterQueues => Set<OutboxDeadLetterQueue>();
-
+        public DbSet<InboxMessage> InboxMessages => Set<InboxMessage>();
+        public DbSet<InboxDeadLetterQueue> InboxDeadLetterQueues => Set<InboxDeadLetterQueue>();
 
         override protected void OnModelCreating(ModelBuilder modelBuilder)
         {
