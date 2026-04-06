@@ -1,6 +1,6 @@
 ﻿namespace BuildingBlocks.Messaging.Events
 {
-    public record IntegrationEvent
+    public record IntegrationEventXX
     {
         public Guid Id { get; init; } = Guid.NewGuid();
         public DateTime OccurredOnUtc { get; init; } = DateTime.UtcNow;
