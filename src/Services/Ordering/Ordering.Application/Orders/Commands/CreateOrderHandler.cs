@@ -1,6 +1,8 @@
 ﻿
 
 
+using Ordering.Domain.ValueObjects;
+
 namespace Ordering.Application.Orders.Commands;
 
 
@@ -9,8 +11,14 @@ public class CreateOrderHandler(IApplicationDbContext dbContext) : ICommandHandl
    
     public async Task<CreateOrderResult> Handle(CreateOrderCommand command, CancellationToken cancellationToken)
     {
-       
-      
+
+        var orderId = OrderId.Of(command.Order.Id);
+
+        var existingOrder = await dbContext.Orders.FindAsync([orderId], cancellationToken);
+        if (existingOrder != null)
+        {
+            return new CreateOrderResult(orderId.Value);
+        }
 
         var newOrder = CreateNewOrder(command.Order);
 
@@ -28,7 +36,7 @@ public class CreateOrderHandler(IApplicationDbContext dbContext) : ICommandHandl
         var payment = Payment.Of(orderDto.Payment.CardName, orderDto.Payment.CardNumber, orderDto.Payment.Expiration, orderDto.Payment.Cvv, orderDto.Payment.PaymentMethod);
         
         var newOrder = Order.Create(
-            OrderId.Of(Guid.NewGuid()),
+            OrderId.Of(orderDto.Id),
             CustomerId.Of(orderDto.CustomerId),
             OrderName.Of(orderDto.OrderName),
             shippingAddress,

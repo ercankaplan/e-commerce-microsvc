@@ -85,7 +85,8 @@ namespace Ordering.InboxProcessor
                             continue;
                         }
 
-                        var command = MapToCreateOrderCommand(basketCheckoutEvent);
+                        var command = MapToCreateOrderCommand(basketCheckoutEvent,message.Id);
+                       
                         await mediator.Send(command, cancellationToken);
 
                         message.ProcessedOnUtc = DateTime.UtcNow;
@@ -132,37 +133,37 @@ namespace Ordering.InboxProcessor
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        private static CreateOrderCommand MapToCreateOrderCommand(BasketCheckoutEvent message)
+        private static CreateOrderCommand MapToCreateOrderCommand(BasketCheckoutEvent messagePayload, Guid messageId)
         {
             var addressDto = new AddressDto(
-                message.FirstName,
-                message.LastName,
-                message.Email,
-                message.AddressLine,
-                message.Country,
-                message.State,
-                message.ZipCode);
+                messagePayload.FirstName,
+                messagePayload.LastName,
+                messagePayload.Email,
+                messagePayload.AddressLine,
+                messagePayload.Country,
+                    messagePayload.State,
+                messagePayload.ZipCode);
 
-            var paymentMethod = int.TryParse(message.PaymentMethod, out var parsedPaymentMethod) ? parsedPaymentMethod : 0;
+            var paymentMethod = int.TryParse(messagePayload.PaymentMethod, out var parsedPaymentMethod) ? parsedPaymentMethod : 0;
 
             var paymentDto = new PaymentDto(
-                message.CardName,
-                message.CardNumber,
-                message.Expiration,
-                message.CVV,
+                messagePayload.CardName,
+                messagePayload.CardNumber,
+                messagePayload.Expiration,
+                messagePayload.CVV,
                 paymentMethod);
 
-            var orderId = Guid.NewGuid();
+            var orderId = messageId;
 
             var orderDto = new OrderDto(
                 Id: orderId,
-                CustomerId: message.CustomerId,
-                OrderName: message.UserName,
+                CustomerId: messagePayload.CustomerId,
+                OrderName: messagePayload.UserName,
                 ShippingAddress: addressDto,
                 BillingAddress: addressDto,
                 Payment: paymentDto,
                 Status: OrderStatus.Pending,
-                Items: message.Items
+                Items: messagePayload.Items
                     .Select(i => new OrderItemDto(
                         OrderId: orderId,
                         ProductId: new Guid("5334C996-8457-4CF0-815C-ED2B77C4FF61"),
