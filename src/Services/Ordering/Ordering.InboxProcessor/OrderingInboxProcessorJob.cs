@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Ordering.Application.Dtos;
 using Ordering.Application.Orders.Commands;
 using Ordering.Domain.Enums;
+using Ordering.Domain.Events;
 using Ordering.Domain.Models;
 using Ordering.Infrastructure.Data;
 using System.Text.Json;
@@ -57,6 +58,7 @@ namespace Ordering.InboxProcessor
 
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+            var publisher = scope.ServiceProvider.GetRequiredService<IPublisher>();
 
             var messages = await dbContext.InboxMessages
                 .Where(x => x.ProcessedOnUtc == null && (x.NextRetryAfter == null || x.NextRetryAfter <= DateTime.UtcNow))
@@ -76,7 +78,7 @@ namespace Ordering.InboxProcessor
                     if (message.EventName == EventContracts.BasketCheckout.Name &&
                         message.EventVersion == EventContracts.BasketCheckout.Version)
                     {
-                        var basketCheckoutEvent = JsonSerializer.Deserialize<BasketCheckoutEvent>(message.Payload);
+                        var basketCheckoutEvent = JsonSerializer.Deserialize<IntEventBasketCheckout>(message.Payload);
 
                         if (basketCheckoutEvent is null)
                         {
@@ -87,7 +89,9 @@ namespace Ordering.InboxProcessor
 
                         var command = MapToCreateOrderCommand(basketCheckoutEvent,message.Id);
                        
-                        await mediator.Send(command, cancellationToken);
+                        var createOrderResult = await mediator.Send(command, cancellationToken);
+
+                        await publisher.Publish(new OrderCreatedEvent(createOrderResult.Order), cancellationToken);
 
                         message.ProcessedOnUtc = DateTime.UtcNow;
                         message.LastError = null;
@@ -133,7 +137,7 @@ namespace Ordering.InboxProcessor
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        private static CreateOrderCommand MapToCreateOrderCommand(BasketCheckoutEvent messagePayload, Guid messageId)
+        private static CreateOrderCommand MapToCreateOrderCommand(IntEventBasketCheckout messagePayload, Guid messageId)
         {
             var addressDto = new AddressDto(
                 messagePayload.FirstName,

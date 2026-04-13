@@ -7,7 +7,7 @@ namespace Ordering.Application.Orders.Commands;
 public record CreateOrderCommand(OrderDto Order) : ICommand<CreateOrderResult>;
 
 
-public record CreateOrderResult(Guid Id);
+public record CreateOrderResult(Order Order);
 
 
 public class CreateOrderCommandValidator : AbstractValidator<CreateOrderCommand>
