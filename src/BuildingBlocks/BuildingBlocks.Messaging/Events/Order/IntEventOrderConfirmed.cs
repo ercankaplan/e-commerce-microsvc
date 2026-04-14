@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace BuildingBlocks.Messaging.Events.Order
 {
-    public class IntEventOrderConfirmed
+    public record IntEventOrderConfirmed
     {
+        public Guid OrderId { get; init; }
     }
+    
+    
 }

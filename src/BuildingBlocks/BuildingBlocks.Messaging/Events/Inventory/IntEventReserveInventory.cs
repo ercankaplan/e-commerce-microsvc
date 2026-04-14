@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace BuildingBlocks.Messaging.Events.Inventory
 {
-    public class IntEventReserveInventory
+    public record IntEventReserveInventory
     {
+        public Guid OrderId { get; init; }
     }
+  
 }

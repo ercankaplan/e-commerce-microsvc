@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace BuildingBlocks.Messaging.Events.Payment
 {
-    public class IntEventRefundPayment
+    public record IntEventRefundPayment
     {
+        public Guid OrderId { get; init; }
+        public decimal OrderTotal { get; init; }
     }
 }

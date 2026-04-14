@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Payment.Application.Data;
 using Payment.Application.Interfaces;
 using Payment.Infrastructure.Data;
+using Payment.Infrastructure.Data.Interceptors;
 using Payment.Infrastructure.PaymentProviders.BankAnt;
 
 namespace Payment.Infrastructure.Extensions
@@ -15,9 +17,14 @@ namespace Payment.Infrastructure.Extensions
             var connectionString = configuration.GetConnectionString("PaymentDB")
                 ?? throw new InvalidOperationException("Connection string 'PaymentDB' is missing.");
 
-            services.AddDbContext<PaymentDbContext>(options =>
+            services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
+
+            services.AddDbContext<PaymentDbContext>((serviceProvider, options) =>
+            {
+                options.AddInterceptors(serviceProvider.GetServices<ISaveChangesInterceptor>());
                 options.UseSqlServer(connectionString, sqlOptions =>
-                    sqlOptions.MigrationsAssembly(typeof(PaymentDbContext).Assembly.FullName)));
+                    sqlOptions.MigrationsAssembly(typeof(PaymentDbContext).Assembly.FullName));
+            });
 
             services.AddScoped<IPaymentDbContext>(sp => sp.GetRequiredService<PaymentDbContext>());
             services.AddScoped<IPaymentProvider, BankAntVirtualPost>();

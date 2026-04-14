@@ -3,18 +3,19 @@ using Payment.API.Models;
 using Payment.Application.Data;
 using Payment.Application.Dtos;
 using Payment.Application.Extensions;
+using Payment.Application.EventHandlers.Integration;
 using Payment.Application.Interfaces;
 using Payment.Domain.Enums;
-using Payment.Domain.ValueObjects;
+using Payment.Domain.ValueObjects;  
 using Payment.Infrastructure.Data;
-using Payment.Infrastructure.Extensions;
+using Payment.Infrastructure.Extensions;    
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
-builder.Services.AddMessageBroker(builder.Configuration, Assembly.GetExecutingAssembly());
+builder.Services.AddOrchestrationMessageBroker(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

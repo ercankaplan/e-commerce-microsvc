@@ -39,21 +39,19 @@ namespace Orchestration.Infrastructure.StateMachines
                         context.Saga.OrderTotal = context.Message.Total;
                         context.Saga.CustomerEmail = context.Message.Email;
                         context.Saga.OrderDate = DateTime.UtcNow;
+                        context.Saga.OrderId = context.Message.OrderId;
+                        context.Saga.UserId = context.Message.OrderId;
                     })
-                    .PublishAsync(context => context.Init<IntEventProcessPayment>(new
-                    {
-                        OrderId = context.Saga.CorrelationId,
-                        Amount = context.Saga.OrderTotal
-                    }))
+                    .PublishAsync(context => context.Init<IntEventProcessPayment>(new IntEventProcessPayment(){
+                       OrderId = context.Saga.OrderId,
+                       UserId = context.Saga.UserId,
+                       Amount = context.Saga.OrderTotal}))
                     .TransitionTo(ProcessingPayment)
             );
 
             During(ProcessingPayment,
                 When(PaymentProcessed)
-                    .PublishAsync(context => context.Init<IntEventReserveInventory>(new
-                    {
-                        OrderId = context.Saga.CorrelationId
-                    }))
+                    .PublishAsync(context => context.Init<IntEventReserveInventory>(new IntEventReserveInventory(){ OrderId = context.Saga.OrderId }))
                     .TransitionTo(ReservingInventory),
                 When(OrderFailed)
                     .TransitionTo(Failed)
@@ -62,17 +60,13 @@ namespace Orchestration.Infrastructure.StateMachines
 
             During(ReservingInventory,
                 When(InventoryReserved)
-                    .PublishAsync(context => context.Init<IntEventOrderConfirmed>(new
-                    {
-                        OrderId = context.Saga.CorrelationId
-                    }))
+                    .PublishAsync(context => context.Init<IntEventOrderConfirmed>(new IntEventOrderConfirmed() { OrderId = context.Saga.OrderId }))
                     .TransitionTo(Completed)
                     .Finalize(),
                 When(OrderFailed)
-                    .PublishAsync(context => context.Init<IntEventRefundPayment>(new
-                    {
-                        OrderId = context.Saga.CorrelationId,
-                        Amount = context.Saga.OrderTotal
+                    .PublishAsync(context => context.Init<IntEventRefundPayment>(new IntEventRefundPayment(){
+                        OrderId = context.Saga.OrderId,
+                        OrderTotal = context.Saga.OrderTotal
                     }))
                     .TransitionTo(Failed)
                     .Finalize()

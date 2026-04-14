@@ -1,23 +1,17 @@
-﻿using BuildingBlocks.Messaging.Events;
-using BuildingBlocks.Messaging.Events.Payment;
+﻿using BuildingBlocks.Messaging.Events.Payment;
 using MassTransit;
-using Payment.Application.Commands;
-using Payment.Application.Data;
-using System.Text.Json;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Payment.Application.Commands;
 
 
 namespace Payment.Application.EventHandlers.Integration
 {
 
-    public sealed class PaymentEventConsumer(ISender sender, 
-        IPublisher publisher,
-        ILogger<PaymentEventConsumer> _logger, 
-        CancellationToken cancellationToken)
-        : IConsumer<IntegrationEventMessage>
+    public sealed class PaymentEventConsumer(ILogger<PaymentEventConsumer> _logger, ISender sender)
+        : IConsumer<IntEventProcessPayment>
     {
-        public async Task Consume(ConsumeContext<IntegrationEventMessage> context)
+        public async Task Consume(ConsumeContext<IntEventProcessPayment> context)
         {
 
 
@@ -27,26 +21,15 @@ namespace Payment.Application.EventHandlers.Integration
 
             try
             {
-                if (message.EventName == EventContracts.ProcessPayment.Name &&
-                    message.EventVersion == EventContracts.ProcessPayment.Version)
-                {
-                    var processPaymentEvent = JsonSerializer.Deserialize<IntEventProcessPayment>(message.Payload);
 
+                var processPaymentEvent = context.Message;
 
+                CancellationToken cancellationToken = context.CancellationToken;
 
-                    var command = MapToPaymentTransactionCommand(processPaymentEvent, message.Id);
+                var command = MapToPaymentTransactionCommand(processPaymentEvent);
 
-                   var processPaymentResult = await sender.Send(command, cancellationToken);
+                var processPaymentResult = await sender.Send(command, cancellationToken);
 
-                  
-
-
-                }
-                else
-                {
-
-                    _logger.LogError($"Unsupported integration event: {message.EventName} v{message.EventVersion}");
-                }
 
 
             }
@@ -54,12 +37,12 @@ namespace Payment.Application.EventHandlers.Integration
             {
 
 
-                _logger.LogError(ex, "Error processing inbox message {MessageId}", message.Id);
+                _logger.LogError(ex, "Error processing inbox message {OrderId}", message.OrderId);
             }
 
         }
 
-        private ProcessPaymentCommand MapToPaymentTransactionCommand(IntEventProcessPayment? processPaymentEvent, Guid ıd)
+        private ProcessPaymentCommand MapToPaymentTransactionCommand(IntEventProcessPayment? processPaymentEvent)
         {
             return new ProcessPaymentCommand(processPaymentEvent.OrderId, processPaymentEvent.UserId, processPaymentEvent.Amount);
 

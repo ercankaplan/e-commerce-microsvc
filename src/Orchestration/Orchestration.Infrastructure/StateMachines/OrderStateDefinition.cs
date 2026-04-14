@@ -1,5 +1,4 @@
 ﻿using MassTransit;
-using Orchestration.Infrastructure.Data;
 
 namespace Orchestration.Infrastructure.StateMachines
 {
@@ -10,8 +9,6 @@ namespace Orchestration.Infrastructure.StateMachines
             ISagaConfigurator<OrderState> consumerConfigurator, IRegistrationContext context)
         {
             endpointConfigurator.UseMessageRetry(r => r.Intervals(10, 50, 100, 1000, 1000, 1000, 1000, 1000));
-
-            endpointConfigurator.UseEntityFrameworkOutbox<OrchestrationDbContext>(context);
         }
     }
 }

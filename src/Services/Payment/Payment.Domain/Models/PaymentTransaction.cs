@@ -1,13 +1,11 @@
 ﻿using Payment.Domain.Enums;
 using Payment.Domain.Events;
-using Payment.Domain.ValueObjects;
+using Payment.Domain.Abstractions;
 
 namespace Payment.Domain.Models
 {
-    public class PaymentTransaction
+    public class PaymentTransaction : Aggregate<PaymentTransactionId>
     {
-        private readonly List<object> _domainEvents = [];
-
         public PaymentTransactionId Id { get; private set; } = default!;
         public OrderId OrderId { get; private set; } = default!;
         public decimal Amount { get; private set; }
@@ -16,8 +14,6 @@ namespace Payment.Domain.Models
         public PaymentStatus Status { get; private set; }
         public string? ExternalTransactionId { get; private set; }
         public string? FailureReason { get; private set; }
-
-        public IReadOnlyCollection<object> DomainEvents => _domainEvents.AsReadOnly();
 
         private PaymentTransaction() { }
 
@@ -75,7 +71,7 @@ namespace Payment.Domain.Models
             ExternalTransactionId = externalTxnId.Trim();
             FailureReason = null;
 
-            _domainEvents.Add(new PaymentSucceededDomainEvent(Id, OrderId.Value, ExternalTransactionId));
+            AddDomainEvent(new PaymentSucceededDomainEvent(Id, OrderId.Value, ExternalTransactionId));
         }
 
         public void MarkFailed(string reason, string externalTransactionId)
@@ -104,17 +100,12 @@ namespace Payment.Domain.Models
             FailureReason = reason.Trim();
             ExternalTransactionId = externalTransactionId.Trim();
 
-            _domainEvents.Add(new PaymentFailedDomainEvent(Id, OrderId.Value, FailureReason));
+            AddDomainEvent(new PaymentFailedDomainEvent(Id, OrderId.Value, FailureReason));
         }
 
         public void MarkRefunded()
         {
             throw new NotSupportedException("Refund flow will be implemented in a future phase.");
-        }
-
-        public void ClearDomainEvents()
-        {
-            _domainEvents.Clear();
         }
     }
 

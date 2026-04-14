@@ -14,17 +14,17 @@ namespace Payment.Infrastructure.Data.Interceptors
     {
         public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
         {
-            DispatchDomainEvents(eventData.Context).GetAwaiter().GetResult();
+            DispatchDomainEvents(eventData.Context, CancellationToken.None).GetAwaiter().GetResult();
             return base.SavingChanges(eventData, result);
         }
 
         public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
         {
-            await DispatchDomainEvents(eventData.Context);
+            await DispatchDomainEvents(eventData.Context, cancellationToken);
             return await base.SavingChangesAsync(eventData, result, cancellationToken);
         }
 
-        private async Task DispatchDomainEvents(Microsoft.EntityFrameworkCore.DbContext? context)
+        private async Task DispatchDomainEvents(Microsoft.EntityFrameworkCore.DbContext? context, CancellationToken cancellationToken)
         {
             if (context == null) return;
 
@@ -42,7 +42,7 @@ namespace Payment.Infrastructure.Data.Interceptors
 
             foreach (var domainEvent in domainEvents)
             {
-                await mediator.Publish(domainEvent); // dispatch domain event to whole consumers
+                await mediator.Publish(domainEvent, cancellationToken); // dispatch domain event to whole consumers
             }
         }
     }
