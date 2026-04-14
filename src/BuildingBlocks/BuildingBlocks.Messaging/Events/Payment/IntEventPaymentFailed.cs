@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace BuildingBlocks.Messaging.Events.Payment
 {
-    public record IntEventProcessPayment(Guid OrderId, Guid UserId, decimal Amount);
-  
+    public class IntEventPaymentFailed
+    {
+        public Guid OrderId { get; init; }
+        public string Reason { get; init; } = string.Empty;
+    }
 }

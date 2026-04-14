@@ -78,11 +78,16 @@ namespace Payment.Domain.Models
             _domainEvents.Add(new PaymentSucceededDomainEvent(Id, OrderId.Value, ExternalTransactionId));
         }
 
-        public void MarkFailed(string reason)
+        public void MarkFailed(string reason, string externalTransactionId)
         {
             if (string.IsNullOrWhiteSpace(reason))
             {
                 throw new ArgumentException("Failure reason is required.", nameof(reason));
+            }
+
+            if (string.IsNullOrWhiteSpace(externalTransactionId))
+            {
+                throw new ArgumentException("External transaction id is required.", nameof(externalTransactionId));
             }
 
             if (Status == PaymentStatus.Failed)
@@ -97,6 +102,7 @@ namespace Payment.Domain.Models
 
             Status = PaymentStatus.Failed;
             FailureReason = reason.Trim();
+            ExternalTransactionId = externalTransactionId.Trim();
 
             _domainEvents.Add(new PaymentFailedDomainEvent(Id, OrderId.Value, FailureReason));
         }

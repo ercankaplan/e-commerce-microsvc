@@ -1,12 +1,20 @@
+using BuildingBlocks.Messaging.MassTransit;
+using Payment.API.Models;
+using Payment.Application.Data;
+using Payment.Application.Dtos;
+using Payment.Application.Extensions;
+using Payment.Application.Interfaces;
 using Payment.Domain.Enums;
-using Payment.Domain.Models;
 using Payment.Domain.ValueObjects;
 using Payment.Infrastructure.Data;
 using Payment.Infrastructure.Extensions;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddMessageBroker(builder.Configuration, Assembly.GetExecutingAssembly());
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -20,25 +28,64 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapPost("/payments/pay-with-credit-card", async (PayWithCreditCardRequest request, PaymentDbContext dbContext, CancellationToken cancellationToken) =>
+app.MapGet("/payments/{id}", async (Guid id, IPaymentDbContext dbContext, CancellationToken cancellationToken) =>
 {
-    var payment = PaymentTransaction.Create(
-        PaymentTransactionId.Of(Guid.NewGuid()),
-        request.OrderId,
-        request.Amount,
-        request.Currency,
-        PaymentMethod.CreditCard);
-
-    if (request.CardNumber.Length < 12)
+    var payment = await dbContext.PaymentTransactions.FindAsync(PaymentTransactionId.Of(id), cancellationToken);
+    if (payment == null)
     {
-        payment.MarkFailed("Card was declined.");
+        return Results.NotFound();
     }
-    else
+    return Results.Ok(new PayWithCreditCardResponse(
+        payment.Id.Value,
+        payment.OrderId.Value,
+        payment.Status.ToString()));
+});
+
+app.MapPost("/payments/pay/{id}", async (Guid id, PayWithCreditCardRequest request, PaymentDbContext dbContext, IPaymentProvider provider, CancellationToken cancellationToken) =>
+{
+
+  
+
+    var payment = await dbContext.PaymentTransactions.FindAsync(PaymentTransactionId.Of(id), cancellationToken);
+    if (payment == null)
     {
-        payment.MarkSucceeded($"pi_{Guid.NewGuid():N}");
+        return Results.NotFound();
     }
 
-    await dbContext.PaymentTransactions.AddAsync(payment, cancellationToken);
+
+    var providerPaymentRequest = new ProviderPaymentRequest
+    {
+        Amount = request.Amount,
+        ProviderCode = "BankAnt",
+        CreditCardData = new CreditCardData
+        {
+            CardNumber = request.CardNumber,
+            ExpiryMonth = request.Expiration,
+            ExpiryYear = request.Expiration,
+            Cvv = request.Cvv
+        }
+    };
+
+    var providerPaymentResult = await provider.ProcessPayment(providerPaymentRequest);
+
+    if (providerPaymentResult == null)
+    {
+        payment.MarkFailed("Failed to process payment with the provider.", string.Empty);
+        
+    }
+
+    if (!providerPaymentResult.IsSuccess)
+    {
+        payment.MarkFailed(providerPaymentResult.ErrorMessage, providerPaymentResult.ExternalTransactionId);
+      
+
+    }
+
+    payment.MarkSucceeded(providerPaymentResult.ExternalTransactionId);
+  
+
+    dbContext.PaymentTransactions.Update(payment);
+
     await dbContext.SaveChangesAsync(cancellationToken);
 
     if (payment.Status == PaymentStatus.Failed)
@@ -46,35 +93,20 @@ app.MapPost("/payments/pay-with-credit-card", async (PayWithCreditCardRequest re
         return Results.BadRequest(new PayWithCreditCardResponse(
             payment.Id.Value,
             payment.OrderId.Value,
-            payment.Status.ToString(),
-            payment.ExternalTransactionId,
-            payment.FailureReason));
+            payment.Status.ToString()));
     }
 
     return Results.Ok(new PayWithCreditCardResponse(
         payment.Id.Value,
         payment.OrderId.Value,
-        payment.Status.ToString(),
-        payment.ExternalTransactionId,
-        payment.FailureReason));
+        payment.Status.ToString()));
+
 })
 .WithName("PayWithCreditCard")
 .WithOpenApi();
 
 app.Run();
 
-public sealed record PayWithCreditCardRequest(
-    Guid OrderId,
-    decimal Amount,
-    string Currency,
-    string CardHolderName,
-    string CardNumber,
-    string Expiration,
-    string Cvv);
 
-public sealed record PayWithCreditCardResponse(
-    Guid PaymentId,
-    Guid OrderId,
-    string Status,
-    string? ExternalTransactionId,
-    string? FailureReason);
+
+

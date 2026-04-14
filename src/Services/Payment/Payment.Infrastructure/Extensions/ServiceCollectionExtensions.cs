@@ -1,7 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Payment.Application.Data;
+using Payment.Application.Interfaces;
 using Payment.Infrastructure.Data;
+using Payment.Infrastructure.PaymentProviders.BankAnt;
 
 namespace Payment.Infrastructure.Extensions
 {
@@ -15,6 +18,9 @@ namespace Payment.Infrastructure.Extensions
             services.AddDbContext<PaymentDbContext>(options =>
                 options.UseSqlServer(connectionString, sqlOptions =>
                     sqlOptions.MigrationsAssembly(typeof(PaymentDbContext).Assembly.FullName)));
+
+            services.AddScoped<IPaymentDbContext>(sp => sp.GetRequiredService<PaymentDbContext>());
+            services.AddScoped<IPaymentProvider, BankAntVirtualPost>();
 
             return services;
         }

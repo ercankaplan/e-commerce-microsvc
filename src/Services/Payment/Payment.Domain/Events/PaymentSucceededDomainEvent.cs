@@ -1,4 +1,5 @@
-﻿using Payment.Domain.ValueObjects;
+﻿using MediatR;
+using Payment.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,5 @@ namespace Payment.Domain.Events
     public sealed record PaymentSucceededDomainEvent(
        PaymentTransactionId PaymentId,
        Guid OrderId,
-       string ExternalTransactionId);
+       string ExternalTransactionId) : INotification;
 }
