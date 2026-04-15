@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Payment.Application.Dtos
 {
-    public class ProviderPaymentResult
+    public class PaymentResult
     {
         public bool IsSuccess { get; set; }
         public string? TransactionId { get; set; }

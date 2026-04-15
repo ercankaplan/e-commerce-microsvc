@@ -3,6 +3,8 @@ using MassTransit;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Payment.Application.Interfaces;
+using Payment.Application.Services;
 using System.Reflection;
 
 namespace Payment.Application.Extensions
@@ -15,6 +17,8 @@ namespace Payment.Application.Extensions
             {
                 configuration.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
             });
+
+            services.AddScoped<IPaymentService, PaymentService>();
 
             return services;
         }

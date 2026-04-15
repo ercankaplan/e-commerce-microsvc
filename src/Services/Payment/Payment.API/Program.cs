@@ -32,35 +32,28 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/payments/{id}", async (Guid id, IPaymentDbContext dbContext, CancellationToken cancellationToken) =>
+app.MapGet("/payments/{id}", async (Guid id, IPaymentService paymentService, CancellationToken cancellationToken) =>
 {
-    var payment = await dbContext.PaymentTransactions.FindAsync(PaymentTransactionId.Of(id), cancellationToken);
+    var payment = await paymentService.GetPaymentTransactionById(id, cancellationToken);
     if (payment == null)
     {
         return Results.NotFound();
     }
     return Results.Ok(new PayWithCreditCardResponse(
         payment.Id.Value,
-        payment.OrderId.Value,
         payment.Status.ToString()));
 });
 
-app.MapPost("/payments/pay/{id}", async (Guid id, PayWithCreditCardRequest request, PaymentDbContext dbContext, IPaymentProvider provider, CancellationToken cancellationToken) =>
+app.MapPost("/payments/pay/{id}", async (Guid id, PayWithCreditCardRequest request, IPaymentService paymentService, CancellationToken cancellationToken) =>
 {
 
-  
 
-    var payment = await dbContext.PaymentTransactions.FindAsync(PaymentTransactionId.Of(id), cancellationToken);
-    if (payment == null)
-    {
-        return Results.NotFound();
-    }
-
-
-    var providerPaymentRequest = new ProviderPaymentRequest
+    var providerPaymentRequest = new PaymentRequest
     {
         Amount = request.Amount,
         ProviderCode = "BankAnt",
+        PaymentMethod = PaymentMethod.CreditCard,
+        ProviderName = "BankAnt",
         CreditCardData = new CreditCardData
         {
             CardNumber = request.CardNumber,
@@ -70,40 +63,19 @@ app.MapPost("/payments/pay/{id}", async (Guid id, PayWithCreditCardRequest reque
         }
     };
 
-    var providerPaymentResult = await provider.ProcessPayment(providerPaymentRequest);
+    var paymentResult = await paymentService.ProcessPayment(providerPaymentRequest, cancellationToken);
 
-    if (providerPaymentResult == null)
+    if(paymentResult.IsSuccess)
     {
-        payment.MarkFailed("Failed to process payment with the provider.", string.Empty);
-        
+        return Results.Ok(new PayWithCreditCardResponse(id,"Succeeded"));
+    }
+    else
+    {
+        return Results.BadRequest(new PayWithCreditCardResponse(id,"Failed"));
     }
 
-    if (!providerPaymentResult.IsSuccess)
-    {
-        payment.MarkFailed(providerPaymentResult.ErrorMessage, providerPaymentResult.ExternalTransactionId);
-      
 
-    }
 
-    payment.MarkSucceeded(providerPaymentResult.ExternalTransactionId);
-  
-
-    dbContext.PaymentTransactions.Update(payment);
-
-    await dbContext.SaveChangesAsync(cancellationToken);
-
-    if (payment.Status == PaymentStatus.Failed)
-    {
-        return Results.BadRequest(new PayWithCreditCardResponse(
-            payment.Id.Value,
-            payment.OrderId.Value,
-            payment.Status.ToString()));
-    }
-
-    return Results.Ok(new PayWithCreditCardResponse(
-        payment.Id.Value,
-        payment.OrderId.Value,
-        payment.Status.ToString()));
 
 })
 .WithName("PayWithCreditCard")
