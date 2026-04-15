@@ -21,6 +21,7 @@ namespace Orchestration.Infrastructure.StateMachines
             entity.Property(x => x.UserId);
             entity.Property(x => x.CustomerEmail);
             entity.Property(x => x.PaymentRequestId);
+            entity.Property(x => x.PaymentTransactionId);
         }
     }
 }

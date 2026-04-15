@@ -43,6 +43,16 @@ namespace Payment.Infrastructure.Data.Configurations
                 .HasMaxLength(32)
                 .IsRequired();
 
+            builder.Property(x => x.PaymentType)
+                .HasConversion<string>()
+                .HasMaxLength(32)
+                .IsRequired();
+
+            builder.Property(x => x.ParentPaymentId)
+                .IsRequired(false);
+
+            builder.HasIndex(x => x.ParentPaymentId);
+
             builder.Property(x => x.ExternalTransactionId)
                 .HasMaxLength(128)
                 .IsRequired(false);

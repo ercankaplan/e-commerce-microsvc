@@ -7,13 +7,13 @@ using Payment.Domain.ValueObjects;
 namespace Payment.Application.EventHandlers.Domain
 {
 
-    public record ProcessPaymentCommand(Guid OrderId, Guid UserId, decimal Amount) : ICommand<ProcessPaymentResult>;
+    public record ProcessRefundCommand(Guid OrderId, Guid UserId, decimal Amount, Guid ParentPaymentId) : ICommand<ProcessRefundResult>;
 
-    public record ProcessPaymentResult(Guid PaymentTransactionId);
+    public record ProcessRefundResult(Guid PaymentTransactionId);
 
-    public class ProcessPaymentCommandHandler(IPaymentDbContext dbContext) : ICommandHandler<ProcessPaymentCommand, ProcessPaymentResult>
+    public class ProcessRefundCommandHandler(IPaymentDbContext dbContext) : ICommandHandler<ProcessRefundCommand, ProcessRefundResult>
     {
-        public async Task<ProcessPaymentResult> Handle(ProcessPaymentCommand request, CancellationToken cancellationToken)
+        public async Task<ProcessRefundResult> Handle(ProcessRefundCommand request, CancellationToken cancellationToken)
         {
            
 
@@ -23,14 +23,15 @@ namespace Payment.Application.EventHandlers.Domain
                 request.Amount,
                 "USD",
                 PaymentMethod.CreditCard,
-                PaymentType.Payment
+                PaymentType.Refund,
+                request.ParentPaymentId
             );
            
 
             dbContext.PaymentTransactions.Add(newPaymentTransaction);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            return new ProcessPaymentResult(newPaymentTransaction.Id.Value);    
+            return new ProcessRefundResult(newPaymentTransaction.Id.Value);    
          
 
         }

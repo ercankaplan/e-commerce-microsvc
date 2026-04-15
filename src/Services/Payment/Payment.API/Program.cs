@@ -8,6 +8,7 @@ using Payment.Application.Interfaces;
 using Payment.Domain.Enums;
 using Payment.Domain.ValueObjects;  
 using Payment.Infrastructure.Data;
+using Payment.Infrastructure.Data.Extensions;
 using Payment.Infrastructure.Extensions;    
 using System.Reflection;
 
@@ -20,6 +21,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+await app.InitializeDatabaseAsync();
 
 if (app.Environment.IsDevelopment())
 {

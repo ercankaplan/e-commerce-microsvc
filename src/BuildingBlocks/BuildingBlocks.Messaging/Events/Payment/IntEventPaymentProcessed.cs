@@ -9,6 +9,6 @@ namespace BuildingBlocks.Messaging.Events.Payment
     public class IntEventPaymentProcessed
     {
         public Guid OrderId { get; init; }
-        public string PaymentIntentId { get; init; }
+        public Guid PaymentTransactionId { get; init; }
     }
 }

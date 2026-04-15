@@ -20,7 +20,7 @@ namespace Payment.Application.EventHandlers.Domain
             var integrationEvent = new IntEventPaymentProcessed
             {
                 OrderId = notification.OrderId,
-                PaymentIntentId = notification.ExternalTransactionId
+                PaymentTransactionId = notification.PaymentId.Value
             };
 
             await publishEndpoint.Publish(integrationEvent, cancellationToken);

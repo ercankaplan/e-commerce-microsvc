@@ -8,7 +8,18 @@ public class OrchestrationDbContextFactory : IDesignTimeDbContextFactory<Orchest
 {
     public OrchestrationDbContext CreateDbContext(string[] args)
     {
-        var basePath = Path.Combine(Directory.GetCurrentDirectory(), "../Orchestration.Service/Orchestration.Service");
+        var currentDirectory = Directory.GetCurrentDirectory();
+        var candidateBasePaths = new[]
+        {
+            currentDirectory,
+            Path.Combine(currentDirectory, "../Orchestration.Service/Orchestration.Service"),
+            Path.Combine(currentDirectory, "../../Orchestration.Service/Orchestration.Service")
+        };
+
+        var basePath = candidateBasePaths
+            .Select(Path.GetFullPath)
+            .FirstOrDefault(path => File.Exists(Path.Combine(path, "appsettings.json")))
+            ?? throw new InvalidOperationException("Could not locate appsettings.json for design-time OrchestrationDbContext creation.");
 
         var configuration = new ConfigurationBuilder()
             .SetBasePath(basePath)

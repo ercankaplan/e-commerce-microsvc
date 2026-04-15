@@ -12,6 +12,8 @@ namespace Payment.Domain.Models
         public string Currency { get; private set; } = string.Empty;
         public PaymentMethod PaymentMethod { get; private set; }
         public PaymentStatus Status { get; private set; }
+        public PaymentType PaymentType { get; private set; }
+        public Guid? ParentPaymentId { get; private set; }
         public string? ExternalTransactionId { get; private set; }
         public string? FailureReason { get; private set; }
 
@@ -22,7 +24,9 @@ namespace Payment.Domain.Models
             Guid orderId,
             decimal amount,
             string currency,
-            PaymentMethod paymentMethod)
+            PaymentMethod paymentMethod,
+            PaymentType paymentType,
+            Guid? parentPaymentId = null)
         {
             if (orderId == Guid.Empty)
             {
@@ -46,7 +50,9 @@ namespace Payment.Domain.Models
                 Amount = amount,
                 Currency = currency.Trim().ToUpperInvariant(),
                 PaymentMethod = paymentMethod,
-                Status = PaymentStatus.Pending
+                Status = PaymentStatus.Pending,
+                PaymentType = paymentType,
+                ParentPaymentId = parentPaymentId
             };
         }
 

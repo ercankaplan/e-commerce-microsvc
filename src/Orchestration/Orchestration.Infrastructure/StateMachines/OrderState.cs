@@ -19,5 +19,6 @@ namespace Orchestration.Infrastructure.StateMachines
         public string? PaymentRequestId { get; set; }
         public DateTime? OrderDate { get; set; }
         public string? CustomerEmail { get; set; }
+        public Guid? PaymentTransactionId { get; set; }
     }
 }

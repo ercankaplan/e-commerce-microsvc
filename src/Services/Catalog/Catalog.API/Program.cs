@@ -1,6 +1,8 @@
 using BuildingBlocks.Behaviors;
 using BuildingBlocks.Handlers;
+using BuildingBlocks.Messaging.MassTransit;
 using Catalog.API.Data;
+using Catalog.API.Models;
 using HealthChecks.UI.Client;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,11 +22,15 @@ builder.Services.AddMediatR(config =>
 
 builder.Services.AddValidatorsFromAssembly(assembly);
 
+builder.Services.AddMessageBroker(builder.Configuration, assembly);
+
 builder.Services.AddCarter();
 
 builder.Services.AddMarten(options =>
 {
     options.Connection(connStrCatalogDB!);
+    options.Schema.For<Product>();
+    options.Schema.For<ReservedProduct>().Identity(x => x.Id);
 }).UseLightweightSessions();
 
 

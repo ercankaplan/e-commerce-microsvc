@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Orchestration.Infrastructure.Data;
@@ -11,9 +12,11 @@ using Orchestration.Infrastructure.Data;
 namespace Orchestration.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(OrchestrationDbContext))]
-    partial class OrchestrationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260415111650_AddPaymentTransactionIdToOrderState")]
+    partial class AddPaymentTransactionIdToOrderState
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -51,6 +51,9 @@ namespace Orchestration.Infrastructure.StateMachines
 
             During(ProcessingPayment,
                 When(PaymentProcessed)
+                    .Then(context => {
+                        context.Saga.PaymentTransactionId = context.Message.PaymentTransactionId;
+                    })
                     .PublishAsync(context => context.Init<IntEventReserveInventory>(new IntEventReserveInventory(){ OrderId = context.Saga.OrderId }))
                     .TransitionTo(ReservingInventory),
                 When(OrderFailed)
@@ -65,6 +68,7 @@ namespace Orchestration.Infrastructure.StateMachines
                     .Finalize(),
                 When(OrderFailed)
                     .PublishAsync(context => context.Init<IntEventRefundPayment>(new IntEventRefundPayment(){
+                        ParentPaymentId = context.Saga.PaymentTransactionId??Guid.Empty,
                         OrderId = context.Saga.OrderId,
                         OrderTotal = context.Saga.OrderTotal
                     }))
