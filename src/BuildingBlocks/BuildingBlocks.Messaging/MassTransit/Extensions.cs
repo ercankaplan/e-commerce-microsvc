@@ -18,25 +18,35 @@ namespace BuildingBlocks.Messaging.MassTransit
                 if (assembly != null) // If an assembly is provided, register all consumers from that assembly => Ordering API
                     config.AddConsumers(assembly);
 
-                services.Configure<MessageBrokerSettings>(options =>
+                //services.Configure<MessageBrokerSettings>(options =>
+                //{
+                //    options.Host = configuration["MessageBroker:Host"]!;
+                //    options.Username = configuration["MessageBroker:Username"]!;
+                //    options.Password = configuration["MessageBroker:Password"]!;
+                //});
+
+     
+
+                var asbConnection = configuration["MessageBroker:AzureServiceBusConnectionString"] ?? throw new InvalidOperationException("MessageBroker:AzureServiceBusConnectionString is missing.");
+
+                config.UsingAzureServiceBus((context, cfg) =>
                 {
-                    options.Host = configuration["MessageBroker:Host"]!;
-                    options.Username = configuration["MessageBroker:Username"]!;
-                    options.Password = configuration["MessageBroker:Password"]!;
-                });
-
-                config.UsingRabbitMq((context, cfg) =>
-                {
-                    var messageBrokerSettings = context.GetRequiredService<IOptions<MessageBrokerSettings>>().Value;
-
-                    cfg.Host(messageBrokerSettings.Host, h =>
-                    {
-                        h.Username(messageBrokerSettings.Username);
-                        h.Password(messageBrokerSettings.Password);
-                    });
-
+                    cfg.Host(asbConnection);
                     cfg.ConfigureEndpoints(context);
                 });
+
+                //config.UsingRabbitMq((context, cfg) =>
+                //{
+                //    var messageBrokerSettings = context.GetRequiredService<IOptions<MessageBrokerSettings>>().Value;
+
+                //    cfg.Host(messageBrokerSettings.Host, h =>
+                //    {
+                //        h.Username(messageBrokerSettings.Username);
+                //        h.Password(messageBrokerSettings.Password);
+                //    });
+
+                //    cfg.ConfigureEndpoints(context);
+                //});
             });
             return services;
         }

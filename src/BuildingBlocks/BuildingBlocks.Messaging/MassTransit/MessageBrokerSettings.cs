@@ -13,5 +13,8 @@ namespace BuildingBlocks.Messaging.MassTransit
         public string Password { get; set; } = default!;
         public ushort Port { get; set; }
         public string VirtualHost { get; set; } = string.Empty;
+        public string AzureServiceBusConnectionString { get; set; } = default!;
     }
+
+
 }

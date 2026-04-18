@@ -14,9 +14,8 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddApplicationServices();
+builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddInfrastructureServices(builder.Configuration);
-builder.Services.AddOrchestrationMessageBroker(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
