@@ -14,5 +14,17 @@ namespace BuildingBlocks.Messaging.Events
             public const string Name = "basket.checkout";
             public const int Version = 1;
         }
+
+        public static class OrderCreated
+        {
+            public const string Name = "order.created";
+            public const int Version = 1;
+        }
+
+        public static class ProcessPayment
+        {
+            public const string Name = "payment.process";
+            public const int Version = 1;
+        }
     }
 }

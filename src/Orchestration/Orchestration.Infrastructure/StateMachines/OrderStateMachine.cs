@@ -1,0 +1,83 @@
+﻿using BuildingBlocks.Messaging.Events.Inventory;
+using BuildingBlocks.Messaging.Events.Order;
+using BuildingBlocks.Messaging.Events.Payment;
+using MassTransit;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Orchestration.Infrastructure.StateMachines
+{
+    public class OrderStateMachine : MassTransitStateMachine<OrderState>
+    {
+
+        public State ProcessingPayment { get; private set; }
+        public State ReservingInventory { get; private set; }
+        public State Completed { get; private set; }
+        public State Failed { get; private set; }
+
+        public Event<IntEventOrderSubmitted> OrderSubmitted { get; private set; }
+        public Event<IntEventPaymentProcessed> PaymentProcessed { get; private set; }
+        public Event<IntEventInventoryReserved> InventoryReserved { get; private set; }
+        public Event<IntEventOrderFailed> OrderFailed { get; private set; }
+
+        public OrderStateMachine()
+        {
+            Event(() => OrderSubmitted, x => x.CorrelateById(m => m.Message.OrderId));
+            Event(() => PaymentProcessed, x => x.CorrelateById(m => m.Message.OrderId));
+            Event(() => InventoryReserved, x => x.CorrelateById(m => m.Message.OrderId));
+            Event(() => OrderFailed, x => x.CorrelateById(m => m.Message.OrderId));
+
+            InstanceState(x => x.CurrentState);
+
+            Initially(
+                When(OrderSubmitted)
+                    .Then(context =>
+                    {
+                        context.Saga.OrderTotal = context.Message.Total;
+                        context.Saga.CustomerEmail = context.Message.Email;
+                        context.Saga.OrderDate = DateTime.UtcNow;
+                        context.Saga.OrderId = context.Message.OrderId;
+                        context.Saga.UserId = context.Message.OrderId;
+                    })
+                    .PublishAsync(context => context.Init<IntEventProcessPayment>(new IntEventProcessPayment(){
+                       OrderId = context.Saga.OrderId,
+                       UserId = context.Saga.UserId,
+                       Amount = context.Saga.OrderTotal}))
+                    .TransitionTo(ProcessingPayment)
+            );
+
+            During(ProcessingPayment,
+                When(PaymentProcessed)
+                    .Then(context => {
+                        context.Saga.PaymentTransactionId = context.Message.PaymentTransactionId;
+                    })
+                    .PublishAsync(context => context.Init<IntEventReserveInventory>(new IntEventReserveInventory(){ OrderId = context.Saga.OrderId }))
+                    .TransitionTo(ReservingInventory),
+                When(OrderFailed)
+                    .TransitionTo(Failed)
+                    .Finalize()
+            );
+
+            During(ReservingInventory,
+                When(InventoryReserved)
+                    .PublishAsync(context => context.Init<IntEventOrderConfirmed>(new IntEventOrderConfirmed() { OrderId = context.Saga.OrderId }))
+                    .TransitionTo(Completed)
+                    .Finalize(),
+                When(OrderFailed)
+                    .PublishAsync(context => context.Init<IntEventRefundPayment>(new IntEventRefundPayment(){
+                        ParentPaymentId = context.Saga.PaymentTransactionId??Guid.Empty,
+                        OrderId = context.Saga.OrderId,
+                        OrderTotal = context.Saga.OrderTotal
+                    }))
+                    .TransitionTo(Failed)
+                    .Finalize()
+            );
+
+            SetCompletedWhenFinalized();
+        }
+
+    }
+}

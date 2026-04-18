@@ -23,9 +23,9 @@ namespace Ordering.API.Endpoints
 
                 var createOrderResult = await sender.Send(command);
 
-                var response = new CreateOrderResponse(createOrderResult.Id);
+                var response = new CreateOrderResponse(createOrderResult.Order.Id.Value);
 
-                return Results.Created($"/orders/{createOrderResult.Id}", response);
+                return Results.Created($"/orders/{createOrderResult.Order.Id}", response);
             })
              .WithName("CreateOrder")
              .Produces<CreateOrderResponse>(StatusCodes.Status201Created)

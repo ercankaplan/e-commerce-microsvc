@@ -35,7 +35,7 @@ namespace Basket.API.Basket.CheckoutBasket
                 return new CheckoutBasketResult(false);
             }
 
-            var eventMessage = command.BasketCheckoutDto.Adapt<BasketCheckoutEvent>();
+            var eventMessage = command.BasketCheckoutDto.Adapt<IntEventBasketCheckout>();
 
             eventMessage = eventMessage with
             {
@@ -49,7 +49,7 @@ namespace Basket.API.Basket.CheckoutBasket
             {
                 ContentType = "application/json",
                 EventName = EventContracts.BasketCheckout.Name,
-                EventType = typeof(BasketCheckoutEvent).AssemblyQualifiedName,
+                EventType = typeof(IntEventBasketCheckout).AssemblyQualifiedName,
                 EventVersion = EventContracts.BasketCheckout.Version,
                 EnvelopeVersion = 1,
                 Payload = System.Text.Json.JsonSerializer.Serialize(eventMessage),

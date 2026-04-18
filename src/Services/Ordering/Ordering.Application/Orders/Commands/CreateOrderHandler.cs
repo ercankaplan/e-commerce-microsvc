@@ -17,7 +17,7 @@ public class CreateOrderHandler(IApplicationDbContext dbContext) : ICommandHandl
         var existingOrder = await dbContext.Orders.FindAsync([orderId], cancellationToken);
         if (existingOrder != null)
         {
-            return new CreateOrderResult(orderId.Value);
+            return new CreateOrderResult(existingOrder);
         }
 
         var newOrder = CreateNewOrder(command.Order);
@@ -26,7 +26,7 @@ public class CreateOrderHandler(IApplicationDbContext dbContext) : ICommandHandl
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return new CreateOrderResult(newOrder.Id.Value);
+        return new CreateOrderResult(newOrder);
     }
 
     private Order CreateNewOrder(OrderDto orderDto)

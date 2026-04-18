@@ -1,5 +1,6 @@
 ﻿
 
+using BuildingBlocks.Messaging.Events.Order;
 using MassTransit;
 using Microsoft.FeatureManagement;
 
@@ -15,7 +16,7 @@ namespace Ordering.Application.Orders.EventHandlers.Domain
             if(await featureManager.IsEnabledAsync("OrderFulfillment"))
             {
 
-                var integrationEvent = domaintEvent.Order.ToOrderDto();
+                var integrationEvent = new IntEventOrderSubmitted(domaintEvent.Order.Id.Value, domaintEvent.Order.TotalPrice, domaintEvent.Order.BillingAddress.Email);
 
                 await publishEndpoint.Publish(integrationEvent, cancellationToken);
             }
